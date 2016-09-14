@@ -31,6 +31,7 @@ import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.liveontologies.owlapi.proof.OWLProver;
 import org.semanticweb.elk.owl.parsing.Owl2ParseException;
 import org.semanticweb.elk.owlapi.OWLAPITestUtils;
 import org.semanticweb.elk.reasoner.tracing.TracingTestManifest;
@@ -40,16 +41,15 @@ import org.semanticweb.elk.testing.PolySuite;
 import org.semanticweb.elk.testing.PolySuite.Config;
 import org.semanticweb.elk.testing.PolySuite.Configuration;
 import org.semanticweb.elk.testing.TestInput;
-import org.semanticweb.elk.testing.TestManifest;
+import org.semanticweb.elk.testing.TestManifestWithOutput;
+import org.semanticweb.elk.testing.UrlTestInput;
 import org.semanticweb.elk.testing.VoidTestOutput;
-import org.semanticweb.elk.testing.io.URLTestIO;
 import org.semanticweb.owlapi.model.OWLClassExpression;
 import org.semanticweb.owlapi.model.OWLDataFactory;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLSubClassOfAxiom;
 import org.semanticweb.owlapi.reasoner.InconsistentOntologyException;
 import org.semanticweb.owlapi.reasoner.InferenceType;
-import org.semanticweb.owlapitools.proofs.ExplainingOWLReasoner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,25 +93,18 @@ public class AllOntologiesProofTest extends BaseProofTest {
 		final OWLDataFactory factory = manager_.getOWLDataFactory();
 		// loading and classifying via the OWL API
 		final OWLOntology ontology = loadOntology(manifest_.getInput()
-				.getInputStream());
-		final ExplainingOWLReasoner reasoner = OWLAPITestUtils
-				.createReasoner(ontology);
+				.getUrl().openStream());
+		final OWLProver prover = OWLAPITestUtils.createProver(ontology);
 
 		try {
-			reasoner.precomputeInferences(InferenceType.CLASS_HIERARCHY);
+			prover.precomputeInferences(InferenceType.CLASS_HIERARCHY);
 		} catch (InconsistentOntologyException e) {
 			// we will explain it, too
 		}
 
 		try {
-			// now do testing
-			// this visitor checks binding of premises to axioms in the source
-			// ontology
-			final OWLInferenceVisitor bindingChecker = ProofTestUtils
-					.getAxiomBindingChecker(ontology);
-
-			ProofTestUtils.visitAllSubsumptionsForProofTests(reasoner,
-					factory, new ProofTestVisitor<Exception>() {
+			ProofTestUtils.visitAllSubsumptionsForProofTests(prover,
+					factory, new ProofTestVisitor() {
 
 						@Override
 						public void visit(OWLClassExpression subsumee,
@@ -122,9 +115,7 @@ public class AllOntologiesProofTest extends BaseProofTest {
 								OWLSubClassOfAxiom axiom = factory
 										.getOWLSubClassOfAxiom(subsumee,
 												subsumer);
-								ProofTestUtils.provabilityTest(reasoner, axiom);
-								RecursiveInferenceVisitor.visitInferences(
-										reasoner, axiom, bindingChecker, true);
+								ProofTestUtils.provabilityTest(prover, axiom);
 							} catch (Exception e) {
 								throw new RuntimeException(e);
 							}
@@ -132,7 +123,7 @@ public class AllOntologiesProofTest extends BaseProofTest {
 
 					});
 		} finally {
-			reasoner.dispose();
+			prover.dispose();
 		}
 	}
 
@@ -144,9 +135,9 @@ public class AllOntologiesProofTest extends BaseProofTest {
 						INPUT_DATA_LOCATION,
 						TracingTestManifest.class,
 						"owl",
-						new TestManifestCreator<URLTestIO, VoidTestOutput, VoidTestOutput>() {
+						new TestManifestCreator<UrlTestInput, VoidTestOutput, VoidTestOutput>() {
 							@Override
-							public TestManifest<URLTestIO, VoidTestOutput, VoidTestOutput> create(
+							public TestManifestWithOutput<UrlTestInput, VoidTestOutput, VoidTestOutput> create(
 									URL input, URL output) throws IOException {
 								// don't need an expected output for these tests
 								return new TracingTestManifest(input);
