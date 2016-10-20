@@ -128,7 +128,6 @@ public class ElkInferenceHash implements ElkInference.Visitor<Integer> {
 		return combinedHashCode(
 				hashCode(
 						ElkClassInclusionObjectIntersectionOfDecomposition.class),
-				hashCode(inference.getSubExpression()),
 				hashCode(inference.getConjuncts()),
 				hashCode(inference.getConjunctPos()));
 	}
@@ -336,6 +335,12 @@ public class ElkInferenceHash implements ElkInference.Visitor<Integer> {
 				hashCode(inference.getSubProperty()),
 				hashCode(inference.getSuperProperty()),
 				hashCode(inference.getRange()));
+	}
+
+	@Override
+	public Integer visit(ElkToldAxiom inference) {
+		return combinedHashCode(hashCode(ElkToldAxiom.class),
+				hashCode(inference.getAxiom()));
 	}
 
 }

@@ -46,11 +46,13 @@ public class ComposedAxiomLoader extends SimpleInterrupter implements
 	@Override
 	public void load(ElkAxiomProcessor axiomInserter,
 			ElkAxiomProcessor axiomDeleter) throws ElkLoadingException {
-		if (!firstLoader_.isLoadingFinished())
+		if (!firstLoader_.isLoadingFinished()) {
 			firstLoader_.load(axiomInserter, axiomDeleter);
-		if (!secondLoader_.isLoadingFinished())
+		}	
+		if (firstLoader_.isLoadingFinished()
+				&& !secondLoader_.isLoadingFinished()) {
 			secondLoader_.load(axiomInserter, axiomDeleter);
-
+		}
 	}
 
 	@Override
@@ -66,7 +68,7 @@ public class ComposedAxiomLoader extends SimpleInterrupter implements
 	}
 
 	@Override
-	public void setInterrupt(boolean flag) {
+	public synchronized void setInterrupt(boolean flag) {
 		super.setInterrupt(flag);
 		firstLoader_.setInterrupt(flag);
 		secondLoader_.setInterrupt(flag);

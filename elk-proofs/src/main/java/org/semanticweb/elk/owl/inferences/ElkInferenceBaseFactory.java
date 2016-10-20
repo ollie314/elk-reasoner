@@ -24,6 +24,7 @@ package org.semanticweb.elk.owl.inferences;
 
 import java.util.List;
 
+import org.semanticweb.elk.owl.interfaces.ElkAxiom;
 import org.semanticweb.elk.owl.interfaces.ElkClass;
 import org.semanticweb.elk.owl.interfaces.ElkClassExpression;
 import org.semanticweb.elk.owl.interfaces.ElkIndividual;
@@ -118,10 +119,9 @@ public class ElkInferenceBaseFactory implements ElkInference.Factory {
 
 	@Override
 	public ElkClassInclusionObjectIntersectionOfDecomposition getElkClassInclusionObjectIntersectionOfDecomposition(
-			ElkClassExpression subExpression,
 			List<? extends ElkClassExpression> conjuncts, int conjunctPos) {
-		return new ElkClassInclusionObjectIntersectionOfDecomposition(
-				subExpression, conjuncts, conjunctPos);
+		return new ElkClassInclusionObjectIntersectionOfDecomposition(conjuncts,
+				conjunctPos);
 	}
 
 	@Override
@@ -329,6 +329,11 @@ public class ElkInferenceBaseFactory implements ElkInference.Factory {
 			ElkObjectPropertyExpression subProperty) {
 		return new ElkPropertyRangePropertyExpansion(superProperty, range,
 				subProperty);
+	}
+
+	@Override
+	public ElkToldAxiom getElkToldAxiom(ElkAxiom axiom) {
+		return new ElkToldAxiom(axiom);
 	}
 
 }
