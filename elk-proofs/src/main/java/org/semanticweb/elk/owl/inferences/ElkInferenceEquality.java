@@ -84,11 +84,9 @@ public class ElkInferenceEquality implements ElkInference.Visitor<Boolean> {
 			public Boolean visit(
 					ElkClassInclusionExistentialFillerExpansion other) {
 				return equals(other.getSubClass(), inference.getSubClass())
-						&& equals(other.getProperty(), inference.getProperty())
-						&& equals(other.getSubFiller(),
-								inference.getSubFiller())
-						&& equals(other.getSuperFiller(),
-								inference.getSuperFiller());
+						&& equals(other.getSuperClass(),
+								inference.getSuperClass())
+						&& equals(other.getProperty(), inference.getProperty());
 			}
 		});
 	}
@@ -129,6 +127,21 @@ public class ElkInferenceEquality implements ElkInference.Visitor<Boolean> {
 						&& equals(other.getSubChain(), inference.getSubChain())
 						&& equals(other.getSuperProperty(),
 								inference.getSuperProperty());
+			}
+		});
+	}
+
+	@Override
+	public Boolean visit(
+			final ElkClassInclusionExistentialTransitivity inference) {
+		return other_.accept(new DefaultVisitor() {
+			@Override
+			public Boolean visit(
+					ElkClassInclusionExistentialTransitivity other) {
+				return equals(other.getClassExpressions(),
+						inference.getClassExpressions())
+						&& equals(other.getTransitiveProperty(),
+								inference.getTransitiveProperty());
 			}
 		});
 	}

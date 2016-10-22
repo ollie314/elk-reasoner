@@ -69,9 +69,8 @@ public class ElkInferenceHash implements ElkInference.Visitor<Integer> {
 		return combinedHashCode(
 				hashCode(ElkClassInclusionExistentialFillerExpansion.class),
 				hashCode(inference.getSubClass()),
-				hashCode(inference.getProperty()),
-				hashCode(inference.getSubFiller()),
-				hashCode(inference.getSuperFiller()));
+				hashCode(inference.getSuperClass()),
+				hashCode(inference.getProperty()));
 	}
 
 	@Override
@@ -98,6 +97,14 @@ public class ElkInferenceHash implements ElkInference.Visitor<Integer> {
 				hashCode(inference.getClassExpressions()),
 				hashCode(inference.getSubChain()),
 				hashCode(inference.getSuperProperty()));
+	}
+
+	@Override
+	public Integer visit(ElkClassInclusionExistentialTransitivity inference) {
+		return combinedHashCode(
+				hashCode(ElkClassInclusionExistentialTransitivity.class),
+				hashCode(inference.getClassExpressions()),
+				hashCode(inference.getTransitiveProperty()));
 	}
 
 	@Override
